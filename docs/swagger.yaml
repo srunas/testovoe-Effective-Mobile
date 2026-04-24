@@ -1,0 +1,231 @@
+basePath: /
+definitions:
+  handler.createRequest:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  handler.updateRequest:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+    type: object
+  subscription.Subscription:
+    properties:
+      end_date:
+        type: string
+      id:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST сервис для агрегации данных об онлайн подписках
+  title: Effective Mobile Subscription API
+  version: "1.0"
+paths:
+  /subscriptions:
+    get:
+      description: Возвращает список подписок, опционально фильтруя по user_id
+      parameters:
+      - description: ID пользователя
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/subscription.Subscription'
+            type: array
+        "500":
+          description: внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Список подписок
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новую запись о подписке пользователя
+      parameters:
+      - description: Данные подписки
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.createRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: некорректный запрос
+          schema:
+            type: string
+        "500":
+          description: внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Создать подписку
+      tags:
+      - subscriptions
+  /subscriptions/{id}:
+    delete:
+      description: Удаляет подписку по ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: подписка не найдена
+          schema:
+            type: string
+        "500":
+          description: внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Удалить подписку
+      tags:
+      - subscriptions
+    get:
+      description: Возвращает подписку по ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/subscription.Subscription'
+        "404":
+          description: подписка не найдена
+          schema:
+            type: string
+        "500":
+          description: внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получить подписку
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные существующей подписки
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Новые данные подписки
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.updateRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: некорректный запрос
+          schema:
+            type: string
+        "404":
+          description: подписка не найдена
+          schema:
+            type: string
+        "500":
+          description: внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Обновить подписку
+      tags:
+      - subscriptions
+  /subscriptions/total:
+    get:
+      description: Возвращает суммарную стоимость подписок за период. Фильтрация по
+        user_id и service_name — опциональна
+      parameters:
+      - description: Начало периода (MM-YYYY)
+        in: query
+        name: from
+        required: true
+        type: string
+      - description: Конец периода (MM-YYYY)
+        in: query
+        name: to
+        required: true
+        type: string
+      - description: ID пользователя
+        in: query
+        name: user_id
+        type: string
+      - description: Название сервиса
+        in: query
+        name: service_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: некорректные параметры
+          schema:
+            type: string
+        "500":
+          description: внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Подсчёт суммы подписок
+      tags:
+      - subscriptions
+swagger: "2.0"

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo "Запуск golangci-lint..."
+
+if ! golangci-lint run ./...; then
+  echo "Линтер нашёл ошибки. Коммит отменён."
+  exit 1
+fi
+
+echo "Линтер пройден."
